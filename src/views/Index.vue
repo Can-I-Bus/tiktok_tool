@@ -109,7 +109,8 @@
                 </template>
             </el-auto-resizer>
         </div>
-        <DataAn :isShow="showDataAn" @handleClose="showDataAn = false" :selectedUids="selectedUids" />
+        <DataAn :isShow="showDataAn" @handleClose="showDataAn = false" :selectedUids="selectedUids"
+            :selectedUuniqueIds="selectedUuniqueIds" />
         <DataConfig :isShow="showDataConfig" :categoryList="categoryList" :selectedUids="selectedUids"
             @handleClose="showDataConfig = false" :currCategory="category" />
         <VideoDialog :isShow="showVideoDialog" :videoList="currVideoList" @handleClose="showVideoDialog = false" />
@@ -160,6 +161,13 @@ const bwList = ref([
 const selectedUids = computed(() => {
     return selectArr.value.reduce((acc, curr) => {
         acc.push(curr.uid)
+        return acc
+    }, [])
+})
+
+const selectedUuniqueIds = computed(() => {
+    return selectArr.value.reduce((acc, curr) => {
+        acc.push(curr.unique_id)
         return acc
     }, [])
 })

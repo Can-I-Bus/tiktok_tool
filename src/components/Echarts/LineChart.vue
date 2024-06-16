@@ -48,16 +48,25 @@ const emit = defineEmits(['xAxisClick', 'legendChange']);
 const chartRef = shallowRef(null);
 let chartInstance = null;
 
-const hiddenSeries = ref(props.data.yData.map(series => series.name));
+const getDefaultSelectedState = (yData) => {
+    const selectedState = {};
+    yData.forEach(series => {
+        selectedState[series.name] = series.name !== '粉丝增量'; // 默认不选中“粉丝增量”系列
+    });
+    return selectedState;
+};
 
 const getChartOption = (data, selectedState) => {
+    const defaultSelectedState = getDefaultSelectedState(data.yData);
+    const mergedSelectedState = { ...defaultSelectedState, ...selectedState };
+
     return {
         tooltip: {
             trigger: 'axis'
         },
         legend: {
             data: data.yData.map(series => series.name),
-            selected: selectedState // 使用传入的选中状态
+            selected: mergedSelectedState // 使用合并的选中状态
         },
         grid: {
             left: '3%',
@@ -83,10 +92,6 @@ const getChartOption = (data, selectedState) => {
             name: series.name,
             type: 'line',
             data: series.value,
-            showSymbol: hiddenSeries.value.includes(series.name) ? false : true,
-            lineStyle: {
-                opacity: hiddenSeries.value.includes(series.name) ? 0 : 1
-            }
         })),
         dataZoom: [
             {
@@ -154,16 +159,6 @@ watch(
             chartInstance.clear(); // 清空图表的配置和数据
             const option = getChartOption(newData, props.selectedState);
             chartInstance.setOption(option, { notMerge: true }); // 重新设置完整的option，并且不合并配置
-        }
-    },
-    { deep: true }
-);
-
-watch(
-    () => hiddenSeries.value,
-    () => {
-        if (chartInstance) {
-            chartInstance.setOption(getChartOption(props.data, props.selectedState));
         }
     },
     { deep: true }

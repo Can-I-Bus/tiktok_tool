@@ -65,8 +65,7 @@
                             <p class="main_title">主要数据</p>
                             <div v-show="isCheckDetailDate" @click="() => {
             isCheckDetailDate = !isCheckDetailDate; charDateDate = { xData: [], yData: [] }
-        }"
-                                style="z-index: 999;cursor: pointer;position:relative;top: 38px;left:-90px;display: flex;align-items: center">
+        }" style="z-index: 999;cursor: pointer;position:relative;top: 38px;left:-90px;display: flex;align-items: center">
                                 <span>返回数据总览</span>
                                 <el-icon :size="24">
                                     <Back />
@@ -112,13 +111,20 @@
 
                     <vxe-table @header-cell-click="headerCellClickEvent" style="margin-bottom: 10px" ref="tableRef"
                         @checkbox-all="selectAllChange" @checkbox-change="selectChange" empty-text="暂无数据" border
-                        show-overflow :scroll-x="{ enabled: true, gt: 20 }" :height="330"
+                        :scroll-x="{ enabled: true, gt: 20 }" :height="330"
                         :row-config="{ isHover: true, useKey: true }" :data="videoList" :scroll-y="{ enabled: true }">
                         <vxe-column :fixed="'left'" type="checkbox" width="50"></vxe-column>
 
                         <vxe-column type="seq" title="视频文案" width="250" align="center">
                             <template #default="{ row }">
-                                <span>{{ row?.desc ?? '暂无文案' }}</span>
+                                <el-tooltip :content="row?.desc ?? '暂无文案'" placement="top">
+                                    <a :href="`https://www.tiktok.com/@${props.selectedUuniqueIds[0]}/video/${row.aweme_id}`"
+                                        target="_blank">
+                                        <span style="color: #409eff;text-decoration: underline;cursor: pointer;">
+                                            {{ row?.desc?.length > 20 ? row?.desc?.substring(0, 18) + '...' : '暂无文案' }}
+                                        </span>
+                                    </a>
+                                </el-tooltip>
                             </template>
                         </vxe-column>
 
@@ -193,7 +199,8 @@ import { convertMillisecondsToMMSS, formatTimestampToLocalTime, getCurrentAndPre
 const { $api } = getCurrentInstance().proxy
 const props = defineProps({
     isShow: Boolean,
-    selectedUids: Array
+    selectedUids: Array,
+    selectedUuniqueIds: Array
 })
 
 const emits = defineEmits(['handleClose'])
