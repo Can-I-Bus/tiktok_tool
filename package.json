@@ -1,0 +1,26 @@
+{
+    "name": "tk-tool",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite --host 0.0.0.0",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@vitejs/plugin-vue-jsx": "^3.1.0",
+        "axios": "^1.6.8",
+        "echarts": "^5.5.0",
+        "element-plus": "^2.7.0",
+        "mitt": "^3.0.1",
+        "vue": "^3.4.21",
+        "vue-router": "^4.3.0",
+        "vxe-table": "^4.5.22"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^5.0.4",
+        "vite": "^5.2.8",
+        "sass": "^1.75.0"
+    }
+}
