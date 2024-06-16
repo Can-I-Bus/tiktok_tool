@@ -8,6 +8,12 @@
             </el-icon>
             <span slot="title">仪表盘</span>
         </el-menu-item>
+        <el-menu-item index="/account">
+            <el-icon>
+                <User />
+            </el-icon>
+            <span slot="title">账号使用</span>
+        </el-menu-item>
         <el-menu-item index="/collection">
             <el-icon>
                 <Tools />
@@ -22,6 +28,7 @@
 import {
     HomeFilled,
     Tools,
+    User
 } from '@element-plus/icons-vue'
 import { ref, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -48,6 +55,7 @@ watch(route, (to) => {
 onMounted(() => {
     if (localStorage.getItem('aside_active')) {
         activeIndex.value = localStorage.getItem('aside_active')
+        router.push(activeIndex.value)
     }
 })
 
