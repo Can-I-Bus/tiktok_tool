@@ -215,14 +215,15 @@ const handleFileList = async (fileList) => {
             const res = await readeFile(fileList[i])
             // console.log(res.split('\n').filter(i => i !== '' && i !== null && i !== undefined))
             // console.log(res.split('\n').filter(i => { return i !== '' && i !== null && i !== undefined }).map(i => { return JSON.parse(i.replace(/[^\x20-\x7E\u4E00-\u9FFF]+/g, "")) }))
-            res.split('\n').filter(i => { return i !== '' && i !== null && i !== undefined }).map(i => { return JSON.parse(i.replace(/[^\x20-\x7E\u4E00-\u9FFF]+/g, "")) }).forEach(i => {
-                console.log(tokenList.value, '=====')
+            res.split('\n').filter(i => { return i !== '' && i !== null && i !== undefined }).
+                map(i => { return JSON.parse(i.replace(/[^\x20-\x7E\u4E00-\u9FFF]+/g, "")) }).forEach(i => {
+                    console.log(tokenList.value, '=====')
 
-                if (!tokenList.value.find(j => { return j.user.uid === i.user.uid })) {
-                    tokenList.value.push(i)
-                }
-                currTokenList.push(i)
-            })
+                    if (!tokenList.value.find(j => { return j.user.uid === i.user.uid })) {
+                        tokenList.value.push(i)
+                    }
+                    currTokenList.push(i)
+                })
         }
         const afterLen = tokenList.value.length
         //如果处理前后数组长度相同的话则代表导入的全是已存在的token，不做处理，只有在长度不想等的时候才进行下一步
@@ -238,21 +239,21 @@ const handleFileList = async (fileList) => {
             }
             const res = await getUserInfo(data)
             tableData.value.push(...res)
-            //提取unique_id提取出来
-            const resUniqueIdList = res.reduce((acc, curr) => {
-                acc.push(curr.unique_id)
+            //提取uid提取出来
+            const resUidList = res.reduce((acc, curr) => {
+                acc.push(curr.uid)
                 return acc
             }, [])
-            console.log("fetch_user_info返回的 uniqueIdList:   ", resUniqueIdList)
+            console.log("fetch_user_info返回的 uniqueIdList:   ", resUidList)
             //判断当前导入的token中是否存在有未返回的项
-            const diffUniqueList = getDifferentItems(resUniqueIdList, currUniqueIdList)
-            console.log("fetch_user_info未返回的 uniqueIdList: ", diffUniqueList)
+            const diffUidList = getDifferentItems(resUidList, currUidList)
+            console.log("fetch_user_info未返回的 uidList: ", diffUidList)
             //如果存在未返回值的话
-            if (diffUniqueList.length > 0) {
+            if (diffUidList.length > 0) {
                 const infoArr = []
-                diffUniqueList.forEach((i) => {
+                diffUidList.forEach((i) => {
                     //找到对应的token
-                    const sameToken = currTokenList.filter(j => { return i === j.user.unique_id })[0]
+                    const sameToken = currTokenList.filter(j => { return i === j.user.uid })[0]
                     const proxy = getProxyLink(sameToken)
                     infoArr.push({ token: sameToken, proxy: proxy })
                 })
