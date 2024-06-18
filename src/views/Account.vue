@@ -229,12 +229,12 @@ const handleFileList = async (fileList) => {
         if (beforeLen != afterLen) {
             console.log("当前导入的token： ", currTokenList)
             //当前导入token的unique_id
-            const currUniqueIdList = currTokenList.reduce((acc, curr) => {
-                acc.push(curr.user.unique_id)
+            const currUidList = currTokenList.reduce((acc, curr) => {
+                acc.push(curr?.user?.uid ?? '')
                 return acc
             }, [])
             const data = {
-                unique_ids: currUniqueIdList
+                uids: currUidList
             }
             const res = await getUserInfo(data)
             tableData.value.push(...res)
