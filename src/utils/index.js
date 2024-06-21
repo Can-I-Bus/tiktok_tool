@@ -160,6 +160,7 @@ export function getCurrentTimeZone() {
  * @param {string} timeZone
  * @returns {string} 格式化后的时间
  */
+
 export function formatTimestampToLocalTime(timestamp) {
     // 将时间戳转换为毫秒
     const date = new Date(timestamp * 1000);
@@ -276,4 +277,42 @@ export function convertMillisecondsToMMSS(milliseconds) {
     const formattedSeconds = String(seconds).padStart(2, '0');
 
     return `${formattedMinutes}:${formattedSeconds}`;
+}
+
+export function convertVideoToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            resolve(e.target.result);
+        };
+        reader.onerror = () => {
+            reject('');
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+export async function taskQueue(queue_num = 50, task_list, cb) {
+    const result = [];
+    let index = 0;
+    while (index < task_list.length) {
+        const batchPromises = task_list.slice(index, index + queue_num).map((i, idx) => cb(i));
+        const batchResults = await Promise.all(batchPromises);
+        result.push(...batchResults);
+        index += queue_num;
+    }
+    return result;
+}
+
+export function readeFile(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            resolve(event.target.result);
+        };
+        reader.onerror = function (event) {
+            reject(event.target.error);
+        };
+        reader.readAsText(file);
+    });
 }

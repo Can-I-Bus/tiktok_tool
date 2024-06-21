@@ -5,6 +5,7 @@
                 <el-button @click="handlePackage">包装选中账号</el-button>
                 <el-button @click="showStart = true">选中账号去收藏</el-button>
                 <el-button @click="showComment = true">选中账号去评论</el-button>
+                <el-button @click="showVideo = true">选中账号发布视频</el-button>
                 <span v-show="refreshData.refreshTotal > 0 && loading"
                     style="margin-left: 20px;line-height: 32px;font-size: 14px">刷新进度: {{ refreshData.refreshTotal + '/'
                     + refreshData.refreshProgress
@@ -98,10 +99,12 @@
         <Start :isShow="showStart" @handleClose="showStart = false" />
         <Comment :isShow="showComment" @handleClose="showComment = false" :selectArr="selectArr" />
         <Concurrent :isShow="showConcurrency" @handleClose="showConcurrency = false" />
+        <Video :isShow="showVideo" @handleClose="showVideo = false" />
     </div>
 </template>
 
 <script setup>
+import Video from '../components/Account/Video.vue'
 import Start from '../components/Account/Start.vue'
 import Comment from '../components/Account/Comment.vue'
 import Proxy from '../components/Account/Proxy.vue'
@@ -111,9 +114,9 @@ import { ref, getCurrentInstance, computed, reactive, onMounted } from 'vue'
 import { getDifferentItems, parseTime, parseNum } from '@/utils'
 import { ElMessage } from 'element-plus'
 onMounted(() => {
-    const val = localStorage.getItem('system_concurrency_size')
-    // console.log(val, '====')
-    concurrency.value = val
+    // const val = localStorage.getItem('system_concurrency_size')
+    // // console.log(val, '====')
+    // 1000 = val
 })
 
 const { proxy } = getCurrentInstance()
@@ -130,6 +133,8 @@ const showConcurrency = ref(false)
 const loading = ref(false)
 
 const showComment = ref(false)
+
+const showVideo = ref(false)
 
 const showStart = ref(false)
 
@@ -265,7 +270,7 @@ const handleFileList = async (fileList) => {
                 //任务队列
                 while (index < infoArr.length) {
                     // 从指定下标处开始取出并发量个任务
-                    const batchInfo = infoArr.slice(index, index + concurrency.value);
+                    const batchInfo = infoArr.slice(index, index + 1000);
                     console.log("任务数组:  ", batchInfo)
                     const batchPromise = batchInfo.map((i, idx) => handleRefresh(i, idx))
                     const result = await Promise.all(batchPromise)
@@ -284,7 +289,7 @@ const handleFileList = async (fileList) => {
                         tableData.value.push(...cbUserInfo)
                     }
                     // 更新下标，准备处理下一批任务
-                    index += concurrency.value;
+                    index += 1000;
                 }
                 console.log('刷新任务总回调:  ', batchRes)
                 // const successRes = batchRes.filter(i => { return i.code === 0 })
@@ -375,7 +380,7 @@ const refreshAction = async () => {
 
         while (index < requestArr.length) {
             // 从指定下标处开始取出并发量个任务
-            const batch = requestArr.slice(index, index + concurrency.value);
+            const batch = requestArr.slice(index, index + 1000);
             const batchPromise = await batch.map((i, idx) => handleRefresh(i, idx))
             // 用 Promise.all 来并行执行这一批任务
             const batchResults = await Promise.all(batchPromise)
@@ -385,9 +390,9 @@ const refreshAction = async () => {
             //处理回调
             await handleRefreshActionCb(batchResults)
             // 更新下标，准备处理下一批任务
-            index += concurrency.value;
+            index += 1000;
             console.log(index, '=======')
-            refreshData.refreshProgress += concurrency.value
+            refreshData.refreshProgress += 1000
         }
         const successNum = result.filter(i => { return i.code === 0 }).length
         loading.value = false

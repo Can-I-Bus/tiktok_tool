@@ -3,7 +3,7 @@
         <div class="top">
             <div class="left">
                 <el-button @click="showToken = true">导入Token</el-button>
-                <el-button @click="showConcurrency = true">并发控制</el-button>
+                <!-- <el-button @click="showConcurrency = true">并发控制</el-button> -->
                 <el-button @click="handleClick(0)">暂停选中任务</el-button>
                 <el-button @click="handleClick(1)">开始选中任务</el-button>
                 <el-button @click="handleGetData">查看选中裂变</el-button>
@@ -688,16 +688,17 @@ const getTaskList = async () => {
 const handleFileList = async (fileList) => {
     try {
         loading.value = true
-        const isImported = localStorage.getItem('server_concurrency_size')
-        if (!isImported || isImported === '0') {
-            return ElMessage.warning('请先导入游客token用于采集')
-        }
+        // const isImported = localStorage.getItem('server_concurrency_size')
+        // if (!isImported || isImported === '0') {
+        //     return ElMessage.warning('请先导入游客token用于采集')
+        // }
         //另存一份uniqueIdList用于后续获取本次查询userinfo没有返回的unique_id
         const currUniqueIdList = []
 
         for (let i = 0; i < fileList.length; i++) {
             //读取博主链接
             const res = await readeFile(fileList[i])
+            progressData.total = res.split('\n').length
             // console.log(res, '========')
             currUniqueIdList.push(...res.split('\n').reduce((acc, curr) => {
                 acc.push(extractTikTokUsername(curr)[0])
@@ -710,8 +711,8 @@ const handleFileList = async (fileList) => {
                 }
             })
         }
-        progressData.total = uniqueIdList.value.length
-        const data = { unique_ids: uniqueIdList.value }
+
+        const data = { unique_ids: currUniqueIdList }
         const res = await getUserInfo(data)
         const currBlogUniqueList = res.reduce((acc, curr) => {
             acc.push(curr.unique_id)
@@ -841,15 +842,15 @@ const transFormuid = async (currUnique, currBlogUnique) => {
 
     while (index < infoArr.length) {
         // 从指定下标处开始取出并发量个任务
-        const batch = infoArr.slice(index, index + concurrency.value);
+        const batch = infoArr.slice(index, index + 100);
         // 用 Promise.all 来并行执行这一批任务
         const batchResults = await Promise.all(batch.map((i, idx) => transFormToUid(i, idx)));
         console.log('并发下标:  ', index, '====', '转换uid任务队列回调:  ', batchResults);
         // 将这一批任务的结果添加到总结果数组中
         results.push(...batchResults);
         // 更新下标，准备处理下一批任务
-        index += concurrency.value;
-        progressData.progress += concurrency.value
+        index += 100;
+        progressData.progress += 100
     }
     return results;
 
