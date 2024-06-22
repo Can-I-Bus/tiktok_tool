@@ -3,8 +3,8 @@
         <div class="top">
             <div class="left">
                 <el-button @click="handlePackage">包装选中账号</el-button>
-                <el-button @click="showStart = true">选中账号去收藏</el-button>
-                <el-button @click="showComment = true">选中账号去评论</el-button>
+                <!-- <el-button @click="showStart = true">选中账号去收藏</el-button> -->
+                <!-- <el-button @click="showComment = true">选中账号去评论</el-button> -->
                 <el-button @click="handlePostVideo">选中账号发布视频</el-button>
                 <span v-show="refreshData.refreshTotal > 0 && loading"
                     style="margin-left: 20px;line-height: 32px;font-size: 14px">刷新进度: {{ refreshData.refreshTotal + '/'
@@ -12,7 +12,7 @@
                     }}...</span>
             </div>
             <div class="right">
-                <el-button @click="showConcurrency = true">并发控制</el-button>
+                <!-- <el-button @click="showConcurrency = true">并发控制</el-button> -->
                 <el-button :loading="refreshLoading" @click="refreshAction">刷新账号</el-button>
                 <el-button @click="showProxy = true">代理配置</el-button>
             </div>
@@ -28,7 +28,7 @@
                         :width="width" :height="height" :row-config="{ isHover: true }" :data="tableData"
                         :scroll-y="{ enabled: true }">
                         <vxe-column :fixed="'left'" type="checkbox" width="50"></vxe-column>
-                        <vxe-column :fixed="'left'" type="seq" title="头像" width="150" align="center">
+                        <vxe-column :fixed="'left'" type="seq" title="头像" align="center">
                             <template #default="{ row }">
                                 <a target="_blank" :href="`https://www.tiktok.com/@${row?.unique_id}`">
                                     <el-image style="width: 40px; height: 40px; border-radius: 50%"
@@ -36,22 +36,22 @@
                                 </a>
                             </template>
                         </vxe-column>
-                        <vxe-column :fixed="'left'" width="150" field="name" title="昵称" align="center">
+                        <vxe-column :fixed="'left'" field="name" title="昵称" align="center">
                             <template #default="{ row }">
                                 <span>{{ row?.nickname ? row.nickname : '暂无昵称' }}</span>
                             </template>
                         </vxe-column>
-                        <vxe-column width="150" field="name" title="unique_id" align="center">
+                        <vxe-column field="name" title="unique_id" align="center">
                             <template #default="{ row }">
                                 <span>{{ row?.unique_id ? row.unique_id : '暂无' }}</span>
                             </template>
                         </vxe-column>
-                        <vxe-column width="150" field="role" title="个人简介" align="center">
+                        <vxe-column width="200" field="role" title="个人简介" align="center">
                             <template #default="{ row }">
                                 <span>{{ row?.signature ? row.signature : '暂无简介' }}</span>
                             </template>
                         </vxe-column>
-                        <vxe-column field="name" width="150" title="ins_id" align="center">
+                        <!-- <vxe-column field="name" width="150" title="ins_id" align="center">
                             <template #default="{ row }">
                                 <span>{{ row?.ins_id ? row.ins_id : '暂无' }}</span>
                             </template>
@@ -66,18 +66,18 @@
                                 <span>{{ row?.youtube_channel_title ? row.youtube_channel_title : '暂无'
                                     }}</span>
                             </template>
-                        </vxe-column>
-                        <vxe-column width="150" field="sex" title="粉丝" align="center">
+                        </vxe-column> -->
+                        <vxe-column field="sex" title="粉丝" align="center">
                             <template #default="{ row }">
                                 <span>{{ row?.follower_count ? parseNum(row.follower_count) : 0 }}</span>
                             </template>
                         </vxe-column>
-                        <vxe-column width="150" field="sex" title="关注" align="center">
+                        <vxe-column field="sex" title="关注" align="center">
                             <template #default="{ row }">
                                 <span>{{ row?.following_count ? parseNum(row.following_count) : 0 }}</span>
                             </template>
                         </vxe-column>
-                        <vxe-column width="150" field="sex" title="作品数量" align="center">
+                        <vxe-column field="sex" title="作品数量" align="center">
                             <template #default="{ row }">
                                 <span>{{ row?.aweme_count ? parseNum(row.aweme_count) : 0 }}</span>
                             </template>
@@ -98,7 +98,7 @@
             @handleClose="showPackageAcc = false" :selectedTokenList="selectedTokenList" />
         <Start :isShow="showStart" @handleClose="showStart = false" />
         <Comment :isShow="showComment" @handleClose="showComment = false" :selectArr="selectArr" />
-        <Concurrent :isShow="showConcurrency" @handleClose="showConcurrency = false" />
+        <!-- <Concurrent :isShow="showConcurrency" @handleClose="showConcurrency = false" /> -->
         <Video :isShow="showVideo" @handleClose="showVideo = false" :selectedTokenList="selectedTokenList" />
     </div>
 </template>
@@ -109,7 +109,7 @@ import Start from '../components/Account/Start.vue'
 import Comment from '../components/Account/Comment.vue'
 import Proxy from '../components/Account/Proxy.vue'
 import PackageAcc from '../components/Account/PackageAcc.vue'
-import Concurrent from '../components/Base/Concurrent.vue'
+// import Concurrent from '../components/Base/Concurrent.vue'
 import { ref, getCurrentInstance, computed, reactive, onMounted } from 'vue'
 import { getDifferentItems, parseTime, parseNum } from '@/utils'
 import { ElMessage } from 'element-plus'
@@ -363,6 +363,9 @@ const handleRefreshActionCb = async (res) => {
 //刷新集成  [刷新按钮]
 const refreshAction = async () => {
     try {
+        if (selectArr.value.length === 0) {
+            return ElMessage.warning('请先选择需要刷新的账号')
+        }
         const acc = localStorage.getItem('tool_proxy_acc')
         const pwd = localStorage.getItem('tool_proxy_pwd')
         const addr = localStorage.getItem('tool_proxy_addr')

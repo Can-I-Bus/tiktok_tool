@@ -180,7 +180,7 @@ const packageAction = async () => {
     console.log(' request数据:  ', requestArr)
     progressData.packageTaskTotal = requestArr.length
     //获取并发数量
-    const concurrency = Number(localStorage.getItem('system_concurrency_size'))
+    const concurrency = 100
 
     const result = []
     let index = 0;
