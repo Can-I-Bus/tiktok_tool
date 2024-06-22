@@ -173,8 +173,8 @@ const selectedUuniqueIds = computed(() => {
 })
 
 const articleChange = async () => {
-    localStorage.setItem('index_article_id', article.value)
     if (article.value !== undefined) {
+        localStorage.setItem('index_article_id', article.value)
         if (article.value === 0) {
             await fileterLowArticle()
         } else if (article.value === 1) {
@@ -382,7 +382,7 @@ const initView = async () => {
     if (categoryId) {
         category.value = Number(categoryId)
     }
-    if (articleId) {
+    if (articleId && articleId !== NaN) {
         article.value = Number(articleId)
     }
     await handleCategoryChange()

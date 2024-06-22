@@ -316,3 +316,24 @@ export function readeFile(file) {
         reader.readAsText(file);
     });
 }
+
+export function getRandomElements(arr, count) {
+    if (count > arr.length) {
+        throw new Error('Count exceeds array length');
+    }
+
+    // 创建一个数组来保存结果
+    const result = [];
+    // 创建一个副本以避免改变原数组
+    const arrCopy = [...arr];
+
+    // 从数组中随机取出 count 个元素
+    for (let i = 0; i < count; i++) {
+        const randomIndex = Math.floor(Math.random() * arrCopy.length);
+        result.push(arrCopy[randomIndex]);
+        // 移除已选择的元素以避免重复选择
+        arrCopy.splice(randomIndex, 1);
+    }
+
+    return result;
+}

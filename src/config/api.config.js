@@ -199,4 +199,9 @@ export default {
         url: '/filter_explosive_growth_account',
         method: 'POST',
     },
+    //发布视频
+    postVideo: {
+        url: '/video_post',
+        method: 'POST',
+    },
 };

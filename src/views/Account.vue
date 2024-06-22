@@ -5,7 +5,7 @@
                 <el-button @click="handlePackage">包装选中账号</el-button>
                 <el-button @click="showStart = true">选中账号去收藏</el-button>
                 <el-button @click="showComment = true">选中账号去评论</el-button>
-                <el-button @click="showVideo = true">选中账号发布视频</el-button>
+                <el-button @click="handlePostVideo">选中账号发布视频</el-button>
                 <span v-show="refreshData.refreshTotal > 0 && loading"
                     style="margin-left: 20px;line-height: 32px;font-size: 14px">刷新进度: {{ refreshData.refreshTotal + '/'
                     + refreshData.refreshProgress
@@ -99,7 +99,7 @@
         <Start :isShow="showStart" @handleClose="showStart = false" />
         <Comment :isShow="showComment" @handleClose="showComment = false" :selectArr="selectArr" />
         <Concurrent :isShow="showConcurrency" @handleClose="showConcurrency = false" />
-        <Video :isShow="showVideo" @handleClose="showVideo = false" />
+        <Video :isShow="showVideo" @handleClose="showVideo = false" :selectedTokenList="selectedTokenList" />
     </div>
 </template>
 
@@ -428,6 +428,13 @@ const handleRefresh = async (data, idx) => {
         console.error(error);
         return {};
     }
+}
+
+const handlePostVideo = () => {
+    if (selectArr.value.length === 0) {
+        return ElMessage.warning('请先选中账号')
+    }
+    showVideo.value = true
 }
 
 const handlePackage = () => {

@@ -9,5 +9,5 @@ if (env === 'development') {
 
 export default {
     BASE_URL: url,
-    TIMEOUT: 180000,
+    TIMEOUT: 600000,
 };
