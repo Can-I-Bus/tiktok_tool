@@ -375,31 +375,39 @@ const refreshAction = async () => {
         loading.value = true
         refreshData.refreshTotal = selectArr.value.length
 
-        let index = 0;
         const result = []
         const requestArr = await assembleRefreshInfoArr()
-
         console.log(requestArr, '=====')
 
-        while (index < requestArr.length) {
-            // 从指定下标处开始取出并发量个任务
-            const batch = requestArr.slice(index, index + 1000);
-            const batchPromise = await batch.map((i, idx) => handleRefresh(i, idx))
-            // 用 Promise.all 来并行执行这一批任务
-            const batchResults = await Promise.all(batchPromise)
-
-            result.push(...batchResults)
-            console.log('并发下标:  ', index, '====', '刷新任务队列回调:  ', batchResults);
-            //处理回调
-            await handleRefreshActionCb(batchResults)
-            // 更新下标，准备处理下一批任务
-            index += 1000;
-            console.log(index, '=======')
-            refreshData.refreshProgress += 1000
+        const runBatch = async (batch) => {
+            await Promise.all(batch.map(async (task, index) => {
+                try {
+                    const res = await handleRefresh(task, index)
+                    result.push(res)
+                } catch (error) {
+                    console.error(error)
+                    result.push({})
+                }
+                refreshData.refreshProgress++
+                // 更新进度
+                // loading.setText(`刷新中... \n 请完成后再进行其他操作 \n ${refreshData.refreshProgress} / ${refreshData.refreshTotal}`)
+            }))
         }
+
+        for (let i = 0; i < requestArr.length; i += 1000) {
+            const batch = requestArr.slice(i, i + 1000)
+            await runBatch(batch)
+        }
+
+        console.log('刷新任务总回调:  ', result)
+        await handleRefreshActionCb(result)
         const successNum = result.filter(i => { return i.code === 0 }).length
         loading.value = false
-        ElMessage.success(`刷新任务完成，成功: ${successNum}个，失败: ${refreshData.refreshTotal - successNum}个`)
+        ElMessage.success({
+            message: `刷新任务完成，成功: ${successNum}个，失败: ${refreshData.refreshTotal - successNum}个`,
+            duration: 0,
+            showClose: true
+        })
         refreshData.refreshProgress = 0
         refreshData.refreshTotal = 0
     } catch (error) {
@@ -407,6 +415,7 @@ const refreshAction = async () => {
         loading.value = false
     }
 }
+
 
 //组装需要刷新账号的信息数组
 const assembleRefreshInfoArr = async (origin = selectArr.value) => {

@@ -28,13 +28,15 @@
 
             <div style="margin-bottom: 20px;">
                 <p style="margin-bottom: 8px;">标签数量</p>
-                <el-input type="number" v-model="form.tagNum" :rows="5" placeholder="请输入标签数量">
+                <el-input @wheel.prevent="handleWheel" type="number" v-model="form.tagNum" :rows="5"
+                    placeholder="请输入标签数量">
                 </el-input>
             </div>
 
             <div style="margin-bottom: 20px;">
                 <p style="margin-bottom: 8px;">并发数量</p>
-                <el-input type="number" v-model="form.queueNum" :rows="5" placeholder="请输入标签数量">
+                <el-input @wheel.prevent="handleWheel" type="number" v-model="form.queueNum" :rows="5"
+                    placeholder="请输入标签数量">
                 </el-input>
             </div>
 
@@ -115,6 +117,12 @@ const writeLen = computed(() => {
     return form.value.write.split('\n').filter(i => { return i !== '' }).length
 })
 
+const handleWheel = (event) => {
+    if (isDisabled.value) {
+        event.preventDefault()
+    }
+}
+
 const handleClose = () => {
     form.value = {
         tags: '',
@@ -158,7 +166,11 @@ const handleConfim = async () => {
     console.log('视频任务队列总回调: ', videoQueueCb)
     const successNum = videoQueueCb.filter(i => { return i?.code === 0 })?.length
     const failNum = videoQueueCb.length - successNum
-    ElMessage.success(`视频发布完毕，成功${successNum}个账号，失败${failNum}个账号`)
+    ElMessage.success({
+        message: `视频发布完毕，成功${successNum}个账号，失败${failNum}个账号`,
+        duration: 0,
+        showClose: true
+    })
     handleClose()
 }
 
@@ -283,7 +295,7 @@ const uploadDragHandlers = useDrag(upload, async (e) => {
     videoLoing.value = true
     const files = Array.from(e.dataTransfer.files)
     const suffixs = ['mp4', 'avi', 'mov', 'wmv', 'mkv', 'webm']
-    const filters = files.filter(i => { return i?.name?.split('.')?.length && suffixs.includes(i.name.split('.')[1]) })
+    const filters = files.filter(i => { return i?.name?.split('.')?.length && suffixs.includes(i.name.split('.')[i.name.split('.').length - 1]) })
     if (filters.length === 0) {
         return ElMessage.warning('没有有效的视频文件')
     }

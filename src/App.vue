@@ -22,4 +22,16 @@ onMounted(() => {
   // overflow-y: scroll !important;
   max-height: 100vh !important;
 }
+
+/* 隐藏 Chrome, Safari, Edge 上的上下箭头 */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* 隐藏 Firefox 上的上下箭头 */
+input[type=number] {
+  -moz-appearance: textfield;
+}
 </style>

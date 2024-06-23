@@ -2,31 +2,31 @@
     <div>
         <el-dialog :model-value="props.isShow" :title="`包装账号`" width="520" :before-close="handleClose"
             style="border-radius: 8px;">
-            <p style="position: absolute;top: 22px;left: 100px">当前包装账号: {{ props.selectArr.length }}个</p>
+            <p style="position: absolute;top: 22px;left: 100px;color: #409eff">当前包装账号: {{ props.selectArr.length }}个</p>
             <p v-show="loading" style="text-align: center;margin-bottom: 14px">包装进度: {{ progressData.packageTaskTotal +
             ' / ' + progressData.packageTaskProgress }}...</p>
-            <p v-show="loading" style="text-align: center;margin-bottom: 14px">tip: 任务总量 = 选中账号 * 需包装字段 <br />
+            <p v-show="loading" style="text-align: center;margin-bottom: 14px">tip: 任务总量 = 选中账号 * 需包装项 <br />
                 (如选中10个账号，包装头像 + 简介，则任务总量为20)</p>
             <div v-loading="loading" class="content">
                 <div @dragover="handleDragOver" @drop="e => handleDrop('avatar', e)">
                     <p>包装头像</p>
                     <img class="mb8" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
                     <p style="font-size: 12px;color: #f32d22" class="mb8">将头像拖入即可</p>
-                    <p>头像数量：{{ avatarList.length }}个</p>
+                    <p style="color: #409eff">头像数量：{{ avatarList.length }}个</p>
                 </div>
 
                 <div @dragover="handleDragOver" @drop="e => handleDrop('nickName', e)">
                     <p>包装昵称</p>
                     <el-input class="mb8" v-model="form.nickName" :rows="5" type="textarea"
                         placeholder="将包装昵称txt文件拖入或手动输入，一行一个" />
-                    <p>昵称数量：{{ form.nickName === '' ? 0 : form.nickName.split('\n').length }}个</p>
+                    <p style="color: #409eff">昵称数量：{{ nickNameLen }}个</p>
                 </div>
 
                 <div @dragover="handleDragOver" @drop="e => handleDrop('desc', e)">
                     <p>包装简介</p>
                     <el-input class="mb8" v-model="form.desc" :rows="5" type="textarea"
                         placeholder="将包装简介txt文件拖入或手动输入，一行一个" />
-                    <p>简介数量：{{ form.desc === '' ? 0 : form.desc.split('\n').length }}个</p>
+                    <p style="color: #409eff">简介数量：{{ descLen }}个</p>
                 </div>
             </div>
             <template #footer>
@@ -78,6 +78,32 @@ const nicknameGetter = ref([])
 
 const descGetter = ref([])
 
+const nickNameLen = computed(() => {
+    let nicknameList = []
+    const hasNewline = form.nickName.includes('\n');
+    const hasCarriageReturn = form.nickName.includes('\r');
+
+    if (hasNewline) {
+        nicknameList = form.nickName.split('\n')
+    } else if (hasCarriageReturn) {
+        nicknameList = form.nickName.split('\r')
+    }
+    return nicknameList.length
+})
+
+const descLen = computed(() => {
+    let descList = []
+    const hasNewline = form.desc.includes('\n');
+    const hasCarriageReturn = form.desc.includes('\r');
+
+    if (hasNewline) {
+        descList = form.desc.split('\n')
+    } else if (hasCarriageReturn) {
+        descList = form.desc.split('\r')
+    }
+    return descList.length
+})
+
 const handleDragOver = (event) => {
     event.preventDefault();
 }
@@ -103,10 +129,12 @@ const handleFileList = async (fileList, type) => {
     }
     fileList.forEach(async i => {
         const res = await readeFile(i)
+        console.log(res, '=====')
         if (type === 'nickName') {
             form.nickName += '\n'
             form.nickName += res
             form.nickName = form.nickName.replace(/^\s*[\r\n]/gm, '')
+
 
         } else if (type === 'desc') {
             form.desc += '\n'
@@ -150,24 +178,44 @@ const handleClose = () => {
     form.desc = ''
     loading.value = false
     avatarList.value = []
+    nicknameGetter.value = []
+    descGetter.value = []
+    avatarGetter.value = []
     progressData.packageTaskProgress = 0
     progressData.packageTaskTotal = 0
 }
 
+
 //包装账号集成
 const packageAction = async () => {
     loading.value = true
-    const nicknameList = form.nickName.split('\n')
+    let nicknameList = []
+    let descList = []
+    const hasNewline = form.nickName.includes('\n');
+    const hasCarriageReturn = form.nickName.includes('\r');
+
+    const descHasNewline = form.desc.includes('\n');
+    const descHasCarriageReturn = form.desc.includes('\r');
+
+    if (hasNewline) {
+        nicknameList = form.nickName.split('\n')
+    } else if (hasCarriageReturn) {
+        nicknameList = form.nickName.split('\r')
+    }
     console.log(nicknameList, '=======')
+
+    if (descHasNewline) {
+        descList = form.desc.split('\n')
+    } else if (descHasCarriageReturn) {
+        descList = form.desc.split('\r')
+    }
+    console.log(descList, '=======')
 
     for (let i = 0; i < nicknameList.length; i++) {
         const data = { file: nicknameList[i], canUse: false, idx: i }
         console.log(data, '=======')
         nicknameGetter.value.push(data)
     }
-
-    const descList = form.desc.split('\n')
-    console.log(descList, '=======')
 
     for (let i = 0; i < descList.length; i++) {
         const data = { file: descList[i], canUse: false, idx: i }
@@ -183,27 +231,38 @@ const packageAction = async () => {
     const concurrency = 100
 
     const result = []
-    let index = 0;
 
-    while (index < requestArr.length) {
-        // 从指定下标处开始取出并发量个任务
-        const batch = requestArr.slice(index, index + concurrency);
-        const batchPromise = batch.map((i, idx) => packageAcc(i, idx))
-        const batchCb = await Promise.all(batchPromise)
-        console.log('并发下标:  ', index, '====', '包装任务队列回调:  ', batchCb);
-        result.push(...batchCb)
+    const runBatch = async (batch) => {
+        await Promise.all(batch.map(async (task, index) => {
+            try {
+                const res = await packageAcc(task, index)
+                result.push(res)
+            } catch (error) {
+                console.error(error)
+                result.push({})
+            }
+            progressData.packageTaskProgress++
+            // 更新进度
+            // loading.setText(`包装中... \n 请完成后再进行其他操作 \n ${progressData.packageTaskProgress} / ${progressData.packageTaskTotal}`)
+        }))
+    }
 
-        // 更新下标，准备处理下一批任务
-        index += concurrency;
-        progressData.packageTaskProgress += concurrency
+    for (let i = 0; i < requestArr.length; i += concurrency) {
+        const batch = requestArr.slice(i, i + concurrency)
+        await runBatch(batch)
     }
 
     console.log("包装回调： ", result)
     loading.value = false
     const successNum = result.filter(i => { return i?.code === 0 }).length
     handleClose()
-    ElMessage.success(`包装完成，成功: ${successNum}个，失败: ${result.length - successNum}个`)
+    ElMessage.success({
+        message: `包装完成，任务总量: ${result.length}个,成功: ${successNum}个，失败: ${result.length - successNum}个`,
+        duration: 0,
+        showClose: true
+    })
 }
+
 
 //创建单个账号数据
 const getCanUseMe = async (type) => {

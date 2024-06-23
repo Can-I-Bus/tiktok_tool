@@ -4,9 +4,9 @@ const { BASE_URL, TIMEOUT } = base;
 
 console.log(`http://${window.location.host}/tiktok`, '=======');
 const service = axios.create({
-    // baseURL: `http://localhost:9000/tiktok`,
+    baseURL: `http://localhost:9000/tiktok`,
     // baseURL: `http://192.168.0.103:9000/tiktok`,
-    baseURL: `http://${window.location.host}/tiktok`,
+    // baseURL: `http://${window.location.host}/tiktok`,
     timeout: TIMEOUT,
 });
 
